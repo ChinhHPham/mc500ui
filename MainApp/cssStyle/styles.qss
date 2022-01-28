@@ -1,0 +1,19 @@
+QPushButton {
+    background: #61B5C8;
+    border: 1px solid #000000;
+    border-radius: 10px;
+    color: #FFFFFF;
+}
+QPushButton:pressed {
+    background: #2A8DA3;
+}
+
+QPushButton[enabled=false] {
+    background: #D7D7D7;
+}
+
+QLineEdit {
+    background: #FFFFFF;
+    border: 1px solid #000000;
+    border-radius: 5px;
+}

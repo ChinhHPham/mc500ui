@@ -1,0 +1,176 @@
+syntax = "proto2";
+package mc500ipc;
+//
+// Used as a component message in other messages.
+//
+message Coordinate {
+  optional int32       x = 1;
+  optional int32       y = 2;
+  optional int32       z = 3;
+}
+
+//
+// For manual testing only.
+//
+message CmdSpindle {
+  enum Command {
+    STOP = 0;
+    RUN_CW = 1;
+    RUN_CCW = 2;
+  }
+  required Command     cmd = 1;
+  required uint32      rpm = 2;
+  required string      id = 3;
+}
+
+//
+// For manual testing only.
+//
+message CmdMoveTo {
+  required Coordinate  workTarget = 1;
+  required uint32      speed = 2;
+  required string      id = 3;
+}
+
+//
+// For manual testing only.
+//
+message CmdChangeTool {
+  required uint32      newTool = 1;
+  required string      id = 2;
+}
+
+//
+// Sent by the control process as response(s) to a manual testing command.
+//
+// All clients will receive this message.
+//
+message CommandResponse
+{
+  required string      id = 1;
+  required bool        finished = 2;
+  optional string      diagMsg = 3;
+}
+
+//
+// Sent from UI to indicate that the virtual feed hold button is pressed.
+// Also is sent by the control process to indicate that any (either physical
+// or on-screen) feed hold button is now active.
+//
+message FeedHoldPressed
+{
+}
+
+//
+// Send from UI to indicate that the virtual feed hold button is released.
+// Also is sent by the control process to indicate that any (either physical
+// or on-screen) feed hold button is now released. When received, on-screen
+// UIs must update the feed hold element on screen to inactive state.
+//
+message FeedHoldReleased
+{
+}
+
+//
+// Sent by UI to indicate that cycle start has been triggered.
+//
+message CycleStart
+{
+}
+
+//
+// Send by UI to indicate that the current cycle should be stopped.
+//
+message CycleStop
+{
+}
+
+//
+// Sent by control process to indicate that a cycle is in progress and
+// during the cycle to indicate which program step is being executed.
+//
+// The currentProgramStep variable indicates which program line is being
+// executed.
+//
+message CycleExecuting
+{
+  required uint32 currentProgramStep = 1;
+}
+
+//
+// Sent by control process to indicate that the cycle has stopped.
+//
+// The nextProgramStep variable indicates which program line would be
+// executed next if cycle start would occur.
+//
+message CycleStopped
+{
+  required uint32 nextProgramStep = 1;
+}
+
+//
+// Clears the current program buffer.
+// This message should be sent as the first step by a client that wishes
+// to upload a new program.
+//
+message ClearProgram
+{
+}
+
+//
+// Adds a program line.
+// The line is appended to the program buffer.
+//
+// The variable code must contain a single line of G-code.
+// The variable step must be a unique non-zero identifier of the line.
+// This identifier is used in CycleExecuting and CycleStopped messages.
+//
+message AddProgramLine
+{
+  required string  code = 1;
+  required uint32  step = 2;
+}
+
+//
+// Sets (part of) the work coordinates.
+//
+// Sets the current work coordinate for each axis to the value specified
+// the the currentWorkCoordinate variable. One or more axis may be unset
+// in the variable; in that case the work coordinates for that axis are
+// not changed.
+//
+message SetWorkCoordinates
+{
+  required Coordinate currentWorkCoordinate = 1;
+}
+
+//
+// Indication of new machine position, sent by the control process.
+// Updates are sent more frequently as the machine is moving.
+//
+// Not every axis is set in every update. In case an axis is not set,
+// the previous value should be kept.
+//
+message PositionUpdate
+{
+  required Coordinate currentWorkCoordinate = 1;
+}
+
+message Message {
+  oneof msg {
+    CmdSpindle         spindleCommand = 1;
+    CmdMoveTo          moveToCommand = 2;
+    CommandResponse    commandresponse = 3;
+    CmdChangeTool      toolcommand = 4;
+    FeedHoldPressed    feedHoldPressed = 5;
+    FeedHoldReleased   feedHoldReleased = 6;
+    CycleStart         cycleStart = 7;
+    CycleStop          cycleStop = 8;
+    CycleExecuting     cycleExecuting = 9;
+    CycleStopped       cycleStopped = 10;
+    ClearProgram       clearProgram = 11;
+    AddProgramLine     addProgramLine = 12;
+    SetWorkCoordinates setWorkCoordinates = 13;
+    PositionUpdate     positionUpdate = 14;
+  }
+}
