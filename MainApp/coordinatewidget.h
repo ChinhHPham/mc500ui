@@ -19,6 +19,9 @@ public:
 
 private slots:
     void positionUpdated(PositionExact pos);
+    void updateXPos();
+    void updateYPos();
+    void updateZPos();
 
 private:
     Ui::CoordinateWidget *ui;

@@ -1,4 +1,5 @@
 #include "tcpsocket.h"
+#include "commmanager.h"
 
 TCPSocket *TCPSocket::m_instance = nullptr;
 
@@ -18,38 +19,51 @@ TCPSocket *TCPSocket::instance()
 void TCPSocket::doConnect(QString hostName, int port)
 {
     m_socket = new QTcpSocket(this);
-    connect(m_socket, &QTcpSocket::connected, this, &TCPSocket::connected);
-    connect(m_socket, &QTcpSocket::disconnected, this, &TCPSocket::disconnected);
-    connect(m_socket, &QTcpSocket::bytesWritten, this, &TCPSocket::bytesWritten);
-    connect(m_socket, &QTcpSocket::readyRead, this, &TCPSocket::readyRead);
+    connect(m_socket, &QTcpSocket::connected, this, [](){qDebug() << QLatin1String("Connected to host");});
+    connect(m_socket, &QTcpSocket::connected, COMM_MANAGER, &CommManager::connectedToHost);
+    connect(m_socket, &QTcpSocket::disconnected, this, [](){qDebug() << QLatin1String("Disconnected to host");});
+    connect(m_socket, &QTcpSocket::disconnected, COMM_MANAGER, &CommManager::disconnectedToHost);
+
+    connect(m_socket, &QTcpSocket::readyRead, this, &TCPSocket::readData);
+    connect(m_socket, &QAbstractSocket::errorOccurred, this, &TCPSocket::displayError);
 
     qDebug() << "Connecting to " << hostName << " at port " << port;
     m_socket->connectToHost(hostName, port);
-    if(!m_socket->waitForConnected(5000)) {
-        qDebug() << "Error: " << m_socket->errorString();
-    }
 }
 
-void TCPSocket::connected()
-{
-    qDebug() << "Connection established";
-    m_socket->write("");
-}
-
-void TCPSocket::disconnected()
-{
-    qDebug() << "Disconnected to host";
-}
-
-void TCPSocket::bytesWritten(quint64 bytes)
-{
-
-}
-
-void TCPSocket::readyRead()
+void TCPSocket::readData()
 {
     const QByteArray data =  m_socket->readAll();
     if (!data.isEmpty()) {
         emit dataReceived(data);
+    }
+}
+
+void TCPSocket::displayError(QAbstractSocket::SocketError socketError)
+{
+    switch (socketError) {
+    case QAbstractSocket::HostNotFoundError:
+        qDebug() << "Host not found. Please check the host name and port settings.";
+        emit COMM_MANAGER->cannotEstablishConnection();
+        break;
+    case QAbstractSocket::ConnectionRefusedError:
+        qDebug() << "Connection is refused. Make sure that server is running and host name and "
+                    "port settings are correct.";
+        emit COMM_MANAGER->cannotEstablishConnection();
+        break;
+    default:
+        qDebug() << "Error: " << m_socket->errorString();
+    }
+}
+
+bool TCPSocket::sendData(QByteArray &data)
+{
+    if (m_socket->isOpen() && m_socket->state() == QAbstractSocket::ConnectedState) {
+        m_socket->write(data);
+        qDebug() << "Sent data: " << data;
+        return true;
+    } else {
+        qDebug() << "Application is not being connected to any host";
+        return false;
     }
 }

@@ -32,7 +32,7 @@
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="ProgramWidget" name="tab">
+      <widget class="ProgramWidget" name="programWidget">
        <attribute name="title">
         <string>Program</string>
        </attribute>
@@ -46,7 +46,41 @@
     </item>
    </layout>
   </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1280</width>
+     <height>27</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="aImportProgram"/>
+    <addaction name="separator"/>
+    <addaction name="aExportProgram"/>
+   </widget>
+   <addaction name="menuFile"/>
+  </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="aImportProgram">
+   <property name="text">
+    <string>Import program</string>
+   </property>
+  </action>
+  <action name="aExportProgram">
+   <property name="text">
+    <string>Export program</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

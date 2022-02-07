@@ -7,16 +7,17 @@ ProtoParser::ProtoParser(QObject *parent)
 
 bool ProtoParser::parseFromArray(mc500ipc::Message &message, const QByteArray &array)
 {
+    qDebug() << "Parsing: " << array;
     if (!array.isEmpty() && !message.ParseFromArray(array.constData(), array.size())) {
         return false;
     }
     return true;
 }
 
-QByteArray ProtoParser::serializePositionUpdate(PositionExact pos)
+QByteArray ProtoParser::serializePositionUpdate(const PositionExact &pos)
 {
     mc500ipc::Message message;
-    mc500ipc::PositionUpdate *update(message.mutable_positionupdate());
+    mc500ipc::SetWorkCoordinates *update(message.mutable_setworkcoordinates());
     mc500ipc::Coordinate *coordinate(update->mutable_currentworkcoordinate());
     switch (pos.type) {
     case X:
@@ -56,12 +57,27 @@ QByteArray ProtoParser::serializeCycleStart()
 QByteArray ProtoParser::serializeFeedHoldMessage(bool status)
 {
     mc500ipc::Message message;
-    //status ? message.mutable_feedholdpressed() : message.mutable_feedholdreleased();
     if (status) {
         message.mutable_feedholdpressed();
     } else {
         message.mutable_feedholdreleased();
     }
+    return serializeToArray(message);
+}
+
+QByteArray ProtoParser::serializeClearProgram()
+{
+    mc500ipc::Message message;
+    message.mutable_clearprogram();
+    return serializeToArray(message);
+}
+
+QByteArray ProtoParser::serializeAddProgramLine(const ProgramLine &pLine)
+{
+    mc500ipc::Message message;
+    mc500ipc::AddProgramLine *addLine(message.mutable_addprogramline());
+    addLine->set_code(pLine.commandLine.toStdString());
+    addLine->set_step(pLine.step);
     return serializeToArray(message);
 }
 
@@ -93,7 +109,7 @@ PositionExact ProtoParser::parsePosition(const mc500ipc::PositionUpdate &posUpda
         pos.type = COORDINATE_TYPE::Y;
     } else if (currentCoordinate.has_z()) {
         pos.z = currentCoordinate.z();
-        pos.type == COORDINATE_TYPE::Z;
+        pos.type = COORDINATE_TYPE::Z;
     }
     return pos;
 }
@@ -112,9 +128,9 @@ void ProtoParser::parseMessage(const QByteArray &data)
 
     //Parse feed hold message
     if (message.has_feedholdpressed()) {
-        emit feedHoldPressed(true);
+        emit feedHoldPressedRemotely(true);
     } else if (message.has_feedholdreleased()) {
-        emit feedHoldPressed(false);
+        emit feedHoldPressedRemotely(false);
     }
 
     //Parse Cycle executing step

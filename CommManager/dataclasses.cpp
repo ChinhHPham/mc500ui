@@ -7,3 +7,9 @@ PositionExact::PositionExact()
     z = 0;
     type = COORDINATE_TYPE::ALL;
 }
+
+ProgramLine::ProgramLine()
+{
+    commandLine = QString();
+    step = 0;
+}

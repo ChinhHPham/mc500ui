@@ -3,10 +3,9 @@
 #include "coordinatewidget.h"
 #include "valuedetailwidget.h"
 #include "alarmwidget.h"
-#include <QFile>
+#include "commmanager.h"
+
 #include <QHBoxLayout>
-#include <qglobal.h>
-#include "tcpsocket.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,14 +18,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->gridLayout->addWidget(coordinateController, 0, 0);
     ui->gridLayout->addWidget(valueDetail, 0, 1);
 
-//Get host name and port from environment variables and establish connection
-#ifdef Q_OS_UNIX
-    TCPSocket::instance()->doConnect(QLatin1String(qgetenv("MC_HOSTNAME")), qgetenv("MC_PORT").toInt());
-#elif Q_OS_WIN32
-    TCPSocket::instance()->doConnect(qEnvironmentVariable("MC_HOSTNAME"), qEnvironmentVariable("MC_PORT").toInt());
-#else
-    Q_ASSERT(true);
-#endif
+    connect(COMM_MANAGER, &CommManager::connectedToHost,
+            this, [Ui = ui](){Ui->statusbar->showMessage(QStringLiteral("Connected to host"));});
+    connect(COMM_MANAGER, &CommManager::disconnectedToHost,
+            this, [Ui = ui](){Ui->statusbar->showMessage(QStringLiteral("Disconnected to host"));});
+    connect(COMM_MANAGER, &CommManager::cannotEstablishConnection,
+            this, [Ui = ui](){Ui->statusbar->showMessage(QStringLiteral("Cannot connect to host"));});
+    COMM_MANAGER->initTCPConnection();
+
+    connect(ui->aImportProgram, &QAction::triggered, ui->programWidget, &ProgramWidget::importProgramTriggered);
+    connect(ui->aExportProgram, &QAction::triggered, ui->programWidget, &ProgramWidget::exportProgramTriggered);
 }
 
 MainWindow::~MainWindow()

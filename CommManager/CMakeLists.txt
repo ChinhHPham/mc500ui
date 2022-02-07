@@ -32,4 +32,5 @@ target_compile_definitions(CommManager PRIVATE COMMMANAGER_LIBRARY)
 
 target_include_directories(CommManager PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
+target_compile_definitions(CommManager PUBLIC QT_NO_CAST_FROM_ASCII)
 add_subdirectory(Protos)

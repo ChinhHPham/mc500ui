@@ -72,6 +72,8 @@ set_target_properties(MainApp PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
+target_compile_definitions(MainApp PUBLIC QT_NO_CAST_FROM_ASCII)
+
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(MainApp)
 endif()

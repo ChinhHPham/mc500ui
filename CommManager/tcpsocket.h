@@ -5,23 +5,22 @@
 #include <QtNetwork/QTcpSocket>
 #include <QString>
 
-#define TCP_SOCKET TCPSocket::instance();
+#define TCP_SOCKET TCPSocket::instance()
 
-class Q_DECL_IMPORT TCPSocket : public QObject
+class TCPSocket : public QObject
 {
     Q_OBJECT
 public:
     static TCPSocket *instance();
     void doConnect(QString hostName, int port);
+    bool sendData(QByteArray &data);
 
 signals:
     void dataReceived(const QByteArray &data);
 
 private slots:
-    void connected();
-    void disconnected();
-    void bytesWritten(quint64 bytes);
-    void readyRead();
+    void readData();
+    void displayError(QAbstractSocket::SocketError socketError);
 
 private:
     explicit TCPSocket(QObject *parent = nullptr);

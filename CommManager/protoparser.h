@@ -12,19 +12,21 @@ class ProtoParser : public QObject
 public:
     explicit ProtoParser(QObject *parent = nullptr);
     void parseMessage(const QByteArray &data);
-    QByteArray serializePositionUpdate(PositionExact pos);
+    QByteArray serializePositionUpdate(const PositionExact &pos);
     QByteArray serializeCycleStart();
     QByteArray serializeCycleStop();
     QByteArray serializeFeedHoldMessage(bool status);
+    QByteArray serializeClearProgram();
+    QByteArray serializeAddProgramLine(const ProgramLine &pLine);
 
 signals:
     void positionUpdated(const PositionExact &pos);
-    void feedHoldPressed(bool isPressed);
+    void feedHoldPressedRemotely(bool isPressed);
     void currentStepChanged(quint32 currentStep);
     void cycleStopped();
 
 private:
-    QByteArray serializeToArray(const mc500ipc::Message &command);
+    QByteArray serializeToArray(const mc500ipc::Message &message);
     bool parseFromArray(mc500ipc::Message &message, const QByteArray &array);
     PositionExact parsePosition(const mc500ipc::PositionUpdate &posUpdate);
 };
