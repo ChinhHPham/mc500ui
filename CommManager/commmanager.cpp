@@ -2,7 +2,6 @@
 #include "protoparser.h"
 #include "tcpsocket.h"
 #include <QtGlobal>
-#define DEBUG_MODE
 
 CommManager *CommManager::m_instance = nullptr;
 

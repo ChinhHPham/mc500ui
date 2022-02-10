@@ -4,6 +4,16 @@
 #include <QStyle>
 #include <QTextBlock>
 #include <QFileDialog>
+#include <QDebug>
+
+const QString htmlTextHighLight = QStringLiteral("<span style=\"background-color: #FFFF00\">%1</span>");
+const QString kEdit = QStringLiteral("Edit");
+const QString kSave = QStringLiteral("Save");
+const QString kHold = QStringLiteral("Hold");
+const QString kRelease = QStringLiteral("Release");
+const QString kStarting = QStringLiteral("Starting");
+const QString kStart = QStringLiteral("Start");
+const QString kRunning = QStringLiteral("Running");
 
 ProgramWidget::ProgramWidget(QWidget *parent) :
     QWidget(parent),
@@ -29,9 +39,11 @@ void ProgramWidget::importProgramTriggered()
                                                      QLatin1String("Open file"),
                                                      QDir::currentPath(),
                                                      QLatin1String("Text files (*.txt)"));
-    programFile.open(QFile::ReadOnly);
-    ui->programTextEdit->setPlainText(QLatin1String(programFile.readAll()));
-    programFile.close();
+    if (programFile.open(QFile::ReadOnly)) {
+        ui->programTextEdit->setPlainText(QLatin1String(programFile.readAll()));
+        programFile.close();
+        updateProgram();
+    }
 }
 
 void ProgramWidget::exportProgramTriggered()
@@ -40,22 +52,23 @@ void ProgramWidget::exportProgramTriggered()
                                                      QLatin1String("Save file"),
                                                      QDir::currentPath(),
                                                      QLatin1String("Text files (*.txt)"));
-    programFile.open(QFile::WriteOnly);
-    programFile.write(ui->programTextEdit->document()->toPlainText().toUtf8());
-    programFile.close();
+    if (programFile.open(QFile::WriteOnly)) {
+        programFile.write(ui->programTextEdit->document()->toPlainText().toUtf8());
+        programFile.close();
+    }
 }
 
 void ProgramWidget::editButtonClicked()
 {
-    if (ui->editButton->text() == QStringLiteral("Edit")) {
+    if (ui->editButton->text() == kEdit) {
         //Start editting
-        ui->editButton->setText(QStringLiteral("Save"));
+        ui->editButton->setText(kSave);
         setButtonEnabled(ui->startButton, false);
         ui->programTextEdit->setReadOnly(false);
         ui->programTextEdit->setUndoRedoEnabled(true);
     } else {
         //Finish editting
-        ui->editButton->setText(QStringLiteral("Edit"));
+        ui->editButton->setText(kEdit);
         setButtonEnabled(ui->startButton, true);
         ui->programTextEdit->setReadOnly(true);
         ui->programTextEdit->setUndoRedoEnabled(false);
@@ -65,13 +78,13 @@ void ProgramWidget::editButtonClicked()
 
 void ProgramWidget::holdButtonClicked()
 {
-    if (ui->holdButton->text() == QStringLiteral("Hold")) {
+    if (ui->holdButton->text() == kHold) {
         if (COMM_MANAGER->updateFeedHoldStatus(true)) {
-            ui->holdButton->setText(QStringLiteral("Release"));
+            ui->holdButton->setText(kRelease);
         }
     } else {
         if (COMM_MANAGER->updateFeedHoldStatus(false)) {
-            ui->holdButton->setText(QStringLiteral("Hold"));
+            ui->holdButton->setText(kHold);
         }
     }
 }
@@ -81,7 +94,7 @@ void ProgramWidget::startButtonClicked()
     if (COMM_MANAGER->cycleStart()) {
         setButtonEnabled(ui->holdButton, false);
         setButtonEnabled(ui->startButton, false);
-        ui->startButton->setText(QStringLiteral("Starting"));
+        ui->startButton->setText(kStarting);
         setButtonEnabled(ui->editButton, false);
     }
 }
@@ -89,7 +102,7 @@ void ProgramWidget::startButtonClicked()
 void ProgramWidget::currentStepChanged(quint32 currentStep)
 {
     if (currentStep != m_currentStep) {
-        ui->startButton->setText(QStringLiteral("Running"));
+        ui->startButton->setText(kRunning);
         setButtonEnabled(ui->startButton, false);
         setButtonEnabled(ui->holdButton, true);
         setButtonEnabled(ui->editButton, false);
@@ -112,7 +125,7 @@ void ProgramWidget::cycleStopped()
 {
     setButtonEnabled(ui->holdButton, false);
     setButtonEnabled(ui->startButton, true);
-    ui->startButton->setText(QStringLiteral("Start"));
+    ui->startButton->setText(kStart);
     setButtonEnabled(ui->editButton, true);
 
     QTextCursor currentBlockCursor(ui->programTextEdit->document());
@@ -154,7 +167,6 @@ void ProgramWidget::updateProgram()
 void ProgramWidget::highLightText(QTextCursor &cursor)
 {
     cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-    QString htmlTextHighLight = QLatin1String("<span style=\"background-color: #FFFF00\">%1</span>");
     cursor.insertHtml(htmlTextHighLight.arg(cursor.block().text()));
 }
 

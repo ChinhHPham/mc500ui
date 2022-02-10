@@ -1,6 +1,10 @@
 #include "tcpsocket.h"
 #include "commmanager.h"
 
+
+const QString localHost = QStringLiteral("127.0.0.1");
+const int defaultPort = 2535;
+
 TCPSocket *TCPSocket::m_instance = nullptr;
 
 TCPSocket::TCPSocket(QObject *parent) : QObject(parent)
@@ -19,14 +23,20 @@ TCPSocket *TCPSocket::instance()
 void TCPSocket::doConnect(QString hostName, int port)
 {
     m_socket = new QTcpSocket(this);
-    connect(m_socket, &QTcpSocket::connected, this, [](){qDebug() << QLatin1String("Connected to host");});
+    connect(m_socket, &QTcpSocket::connected, this, [](){qDebug() << QStringLiteral("Connected to host");});
     connect(m_socket, &QTcpSocket::connected, COMM_MANAGER, &CommManager::connectedToHost);
-    connect(m_socket, &QTcpSocket::disconnected, this, [](){qDebug() << QLatin1String("Disconnected to host");});
+    connect(m_socket, &QTcpSocket::disconnected, this, [](){qDebug() << QStringLiteral("Disconnected to host");});
     connect(m_socket, &QTcpSocket::disconnected, COMM_MANAGER, &CommManager::disconnectedToHost);
 
     connect(m_socket, &QTcpSocket::readyRead, this, &TCPSocket::readData);
     connect(m_socket, &QAbstractSocket::errorOccurred, this, &TCPSocket::displayError);
 
+    if (hostName.isEmpty()) {
+        hostName = localHost;
+    }
+    if (!port) {
+        port = defaultPort;
+    }
     qDebug() << "Connecting to " << hostName << " at port " << port;
     m_socket->connectToHost(hostName, port);
 }
