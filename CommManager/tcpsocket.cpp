@@ -1,10 +1,6 @@
 #include "tcpsocket.h"
 #include "commmanager.h"
 
-
-const QString localHost = QStringLiteral("127.0.0.1");
-const int defaultPort = 2535;
-
 TCPSocket *TCPSocket::m_instance = nullptr;
 
 TCPSocket::TCPSocket(QObject *parent) : QObject(parent)
@@ -32,10 +28,10 @@ void TCPSocket::doConnect(QString hostName, int port)
     connect(m_socket, &QAbstractSocket::errorOccurred, this, &TCPSocket::displayError);
 
     if (hostName.isEmpty()) {
-        hostName = localHost;
+        hostName = QStringLiteral("127.0.0.1");
     }
     if (!port) {
-        port = defaultPort;
+        port = 2535;
     }
     qDebug() << "Connecting to " << hostName << " at port " << port;
     m_socket->connectToHost(hostName, port);
