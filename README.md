@@ -17,7 +17,7 @@ If the tool cannot find Qt library, you may need to add a config file (<QT.versi
 #TO-DO: It is best to create an installer for the application. Qt also provides Qt Installer Framework for this purpose.
 
 ## Running
-The package created in the previous step should be enough for running the application in another Ubuntu/Debian machine. If not, you may need to do some of the following steps depending on the situation:
+The package created in the previous step should be enough for running the application in another Ubuntu/Debian machine. If not, you may need to do some of the following steps on the target device depending on the situation:
 
 1. sudo apt-get install '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
 
