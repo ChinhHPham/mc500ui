@@ -2,7 +2,7 @@
 This is on-going Tickingbot Matsuura project for mc500 built with Qt5. CMake build system is chosen so that it is more compatible to future Qt6 release. However, Qt6 is not widely supported everywhere at the moment so that it is not yet selected for the current progress of the project. 
 
 ## Compilation
-After installing Qt and CMake, the project can be compile directly through Qt Creator or CMake command.
+After installing Qt and CMake, the project can be compile directly with Qt Creator or CMake command.
 Instruction on setting up Qt from Ubuntu's repositories: https://wiki.qt.io/Install_Qt_5_on_Ubuntu.
 
 If you want to have other version than default version from ubuntu repo you can download Qt Online installer and install all the packages from there. The same method is applied to Window environment.
