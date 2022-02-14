@@ -9,7 +9,7 @@ If you want to have other version than default version from ubuntu repo you can 
 
 ## Packaging
 Create an Release build version of the project and copy the binary to a desired folder.
-I recommended using linuxdeployqt (https://github.com/probonopd/linuxdeployqt) for quickly get all the necessary Qt package copied to your desired folder.
+I recommend using linuxdeployqt (https://github.com/probonopd/linuxdeployqt) for quickly getting all the necessary Qt package copied to your desired folder.
 Instruction for using linuxdeployqt https://medium.com/swlh/how-to-deploy-your-qt-applications-to-linux-operating-system-with-linuxdeployqt-3c004a43c67a.
 
 If the tool cannot find Qt library, you may need to add a config file (<QT.version>.config) to path "/etc/ld.so.conf.d". The file includes the path to where your Qt library is installed, for example: "/opt/Qt/5.12.2/gcc_64/lib". Then run "sudo ldconfig" to update the configuration.
